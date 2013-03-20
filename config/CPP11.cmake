@@ -5,13 +5,14 @@
 
 # we need C++11
 if(${CMAKE_COMPILER_IS_GNUCXX})
-	set(CPP11_COMPILER_SWITCH -std=c++0x)
+	set(CPP11_COMPILER_SWITCH "-std=c++0x")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CPP11_COMPILER_SWITCH -std=c++0x -stdlib=libc++ -DOGLPLUS_NO_NOEXCEPT=1)
+	set(CPP11_COMPILER_SWITCH "-std=c++0x -stdlib=libc++")
+	add_definitions(-DOGLPLUS_NO_NOEXCEPT=1)
 endif()
 # TODO add support for other compilers
 
-add_definitions(${CPP11_COMPILER_SWITCH})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP11_COMPILER_SWITCH}")
 
 function(cpp11_feature_detection FEATURE_NAME)
 	configure_file(
