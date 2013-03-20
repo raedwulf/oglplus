@@ -78,6 +78,9 @@ public:
 		int /*gl_ver_minor*/ = 3
 	)
 	{
+#  ifdef OGLPLUS_USE_GLEW_EXPERIMENTAL
+		glewExperimental = GL_TRUE;
+#  endif
 		auto init_result = glewInit();
 		glGetError();
 		if(init_result != GLEW_OK)
