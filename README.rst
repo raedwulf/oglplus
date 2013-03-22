@@ -17,6 +17,7 @@ OGLplus README
 .. _FreeGLUT: http://freeglut.sourceforge.net/
 .. _SDL: www.libsdl.org/
 .. _wxGL: www.wxwidgets.org/
+.. _Homebrew: http://mxcl.github.com/homebrew/
 
 Introduction to OGLplus
 =======================
@@ -263,7 +264,30 @@ also download a recent package and copy the ``_prebuilt/`` directory
 into to the directory where you have cloned the repo or use the cmake
 build system and build them that way.
 
+MacOS X 10.8
+------------
 
+Experimental support for MacOS X currently works and has been tested lightly.
+
+Using homebrew for dependencies:
+
+* Install `Homebrew <http://mxcl.github.com/homebrew/>`_.
+* As part of that you should install the XCode Command Line Tools.
+* Install dependencies:
+
+::
+
+ $> brew install cmake
+ $> brew install doxygen
+ $> brew install glew
+ $> brew install glfw
+
+Build as like other systems like Linux; note that this does not create
+MacOS X applications nor do all the examples work due to lack of full OpenGL
+3.3 support.
+
+When you configure cmake, you will need ``OGLPLUS_FORCE_GLEW`` and
+``OGLPLUS_FORCE_GLFW`` as ``ON``.
 
 Acknowledgements
 ================
