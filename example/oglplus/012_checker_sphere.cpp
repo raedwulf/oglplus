@@ -27,6 +27,8 @@ private:
 	shapes::DrawingInstructions sphere_instr;
 	// indices pointing to sphere primitive elements
 	shapes::Sphere::IndexArray sphere_indices;
+	// element index info for drawing
+	shapes::ElementIndexInfo sphere_element_index_info;
 
 	// wrapper around the current OpenGL context
 	Context gl;
@@ -40,6 +42,7 @@ private:
 	// VBOs for the sphere's vertices and tex-coordinates
 	Buffer verts;
 	Buffer texcoords;
+	Buffer indices;
 
 	// Uniform variables
 	LazyUniform<Mat4f> projection_matrix;
@@ -48,6 +51,7 @@ public:
 	SphereExample(void)
 	 : sphere_instr(make_sphere.Instructions())
 	 , sphere_indices(make_sphere.Indices())
+	 , sphere_element_index_info(make_sphere)
 	 , projection_matrix(prog, "ProjectionMatrix")
 	 , camera_matrix(prog, "CameraMatrix")
 	{
@@ -118,6 +122,13 @@ public:
 			// (prog|1) is equivalent to VertexAttribArray(prog, VertexAtribSlot(1))
 			(prog|1).Setup(n_per_vertex, DataType::Float).Enable();
 		}
+
+		// bind the VBO for the sphere indices
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_sphere.Indices());
+		}
+
 		//
 		gl.ClearColor(0.8f, 0.8f, 0.7f, 0.0f);
 		gl.ClearDepth(1.0f);
@@ -151,7 +162,7 @@ public:
 			)
 		);
 
-		sphere_instr.Draw(sphere_indices);
+		sphere_instr.Draw(sphere_element_index_info);
 	}
 
 	bool Continue(double time)
