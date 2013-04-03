@@ -25,8 +25,6 @@ private:
 	shapes::Sphere make_sphere;
 	// helper object encapsulating sphere drawing instructions
 	shapes::DrawingInstructions sphere_instr;
-	// indices pointing to sphere primitive elements
-	shapes::Sphere::IndexArray sphere_indices;
 	// element index info for drawing
 	shapes::ElementIndexInfo sphere_element_index_info;
 
@@ -50,7 +48,6 @@ private:
 public:
 	SphereExample(void)
 	 : sphere_instr(make_sphere.Instructions())
-	 , sphere_indices(make_sphere.Indices())
 	 , sphere_element_index_info(make_sphere)
 	 , projection_matrix(prog, "ProjectionMatrix")
 	 , camera_matrix(prog, "CameraMatrix")
