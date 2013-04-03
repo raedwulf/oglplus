@@ -25,8 +25,8 @@ private:
 	shapes::Torus make_torus;
 	// helper object encapsulating torus drawing instructions
 	shapes::DrawingInstructions torus_instr;
-	// indices pointing to torus primitive elements
-	shapes::Torus::IndexArray torus_indices;
+	// element index info for drawing the torus
+	shapes::ElementIndexInfo torus_element_index_info;
 
 	// wrapper around the current OpenGL context
 	Context gl;
@@ -46,8 +46,8 @@ private:
 	// A vertex array object for the rendered torus
 	VertexArray torus;
 
-	// VBOs for the torus's vertex attributes
-	Buffer verts, normals, texcoords;
+	// VBOs for the torus's vertices, normals, texcoords and indices
+	Buffer verts, normals, texcoords, indices;
 
 	// texture for the torus
 	Texture tex;
@@ -55,7 +55,7 @@ public:
 	TorusExample(void)
 	 : make_torus(1.0, 0.5, 72, 48)
 	 , torus_instr(make_torus.Instructions())
-	 , torus_indices(make_torus.Indices())
+	 , torus_element_index_info(make_torus)
 	 , projection_matrix(prog, "ProjectionMatrix")
 	 , camera_matrix(prog, "CameraMatrix")
 	 , model_matrix(prog, "ModelMatrix")
@@ -148,6 +148,12 @@ public:
 			attr.Enable();
 		}
 
+		// bind the VBO for the torus indices
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_torus.Indices());
+		}
+
 		// setup the texture
 		Texture::Target tex_tgt = Texture::Target::_2D;
 		tex.Bind(tex_tgt);
@@ -227,11 +233,11 @@ public:
 		torus.Bind();
 		gl.PolygonMode(PolygonMode::Line);
 		gl.CullFace(Face::Front);
-		torus_instr.Draw(torus_indices);
+		torus_instr.Draw(torus_element_index_info);
 		//
 		gl.PolygonMode(PolygonMode::Fill);
 		gl.CullFace(Face::Back);
-		torus_instr.Draw(torus_indices);
+		torus_instr.Draw(torus_element_index_info);
 	}
 
 	bool Continue(double time)
