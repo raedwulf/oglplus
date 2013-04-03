@@ -27,8 +27,8 @@ private:
 	shapes::Plane make_plane;
 	// helper object encapsulating plane drawing instructions
 	shapes::DrawingInstructions plane_instr;
-	// indices pointing to plane primitive elements
-	shapes::Plane::IndexArray plane_indices;
+	// element index info for drawing the plane
+	shapes::ElementIndexInfo plane_element_index_info;
 
 	// wrapper around the current OpenGL context
 	Context gl;
@@ -43,8 +43,8 @@ private:
 	// A vertex array object for the rendered plane
 	VertexArray plane;
 
-	// VBOs for the plane's vertex attributes
-	Buffer verts, texcoords;
+	// VBOs for the plane's vertex attributes, texcoords and indices
+	Buffer verts, texcoords, indices;
 
 	// the heightmap texture
 	Texture tex;
@@ -60,7 +60,7 @@ public:
 		Vec3f(0.0f, 0.0f,-9.0f),
 		grid_side*3, grid_side*3
 	), plane_instr(make_plane.Instructions())
-	 , plane_indices(make_plane.Indices())
+	 , plane_element_index_info(make_plane)
 	 , light_pos(prog, "LightPos")
 	 , projection_matrix(prog, "ProjectionMatrix")
 	 , camera_matrix(prog, "CameraMatrix")
@@ -186,6 +186,11 @@ public:
 			attr.Enable();
 		}
 
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_plane.Indices());
+		}
+
 		// setup the texture
 		Texture::Target tex_tgt = Texture::Target::_2D;
 		tex.Bind(tex_tgt);
@@ -245,7 +250,7 @@ public:
 		light_pos.Set(light_path.Position(time / 10.0));
 
 		plane.Bind();
-		plane_instr.Draw(plane_indices);
+		plane_instr.Draw(plane_element_index_info);
 	}
 
 	bool Continue(double time)
