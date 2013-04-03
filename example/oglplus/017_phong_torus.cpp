@@ -25,8 +25,8 @@ private:
 	shapes::Torus make_torus;
 	// helper object encapsulating torus drawing instructions
 	shapes::DrawingInstructions torus_instr;
-	// indices pointing to torus primitive elements
-	shapes::Torus::IndexArray torus_indices;
+	// element index info for drawing the torus
+	shapes::ElementIndexInfo torus_element_index_info;
 
 	// wrapper around the current OpenGL context
 	Context gl;
@@ -43,13 +43,13 @@ private:
 	// A vertex array object for the rendered torus
 	VertexArray torus;
 
-	// VBOs for the torus's vertices and normals
-	Buffer verts, normals;
+	// VBOs for the torus's vertices, normals and indices
+	Buffer verts, normals, indices;
 public:
 	TorusExample(void)
 	 : make_torus(1.0, 0.5, 72, 48)
 	 , torus_instr(make_torus.Instructions())
-	 , torus_indices(make_torus.Indices())
+	 , torus_element_index_info(make_torus)
 	{
 		// Set the vertex shader source
 		vs.Source(
@@ -145,6 +145,11 @@ public:
 			attr.Enable();
 		}
 
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_torus.Indices());
+		}
+
 		// set the light positions
 		Uniform<Vec3f> light_pos(prog, "LightPos");
 		light_pos[0].Set(Vec3f(2.0f,-1.0f, 0.0f));
@@ -186,7 +191,7 @@ public:
 			)
 		);
 
-		torus_instr.Draw(torus_indices);
+		torus_instr.Draw(torus_element_index_info);
 	}
 
 	bool Continue(double time)
