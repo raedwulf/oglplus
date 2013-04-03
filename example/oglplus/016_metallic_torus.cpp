@@ -25,8 +25,8 @@ private:
 	shapes::Torus make_torus;
 	// helper object encapsulating torus drawing instructions
 	shapes::DrawingInstructions torus_instr;
-	// indices pointing to torus primitive elements
-	shapes::Torus::IndexArray torus_indices;
+	// element index info for drawing the torus
+	shapes::ElementIndexInfo torus_element_index_info;
 
 	// wrapper around the current OpenGL context
 	Context gl;
@@ -46,13 +46,13 @@ private:
 	// A vertex array object for the rendered torus
 	VertexArray torus;
 
-	// VBOs for the torus's vertices and normals
-	Buffer verts, normals;
+	// VBOs for the torus's vertices, normals and indices
+	Buffer verts, normals, indices;
 public:
 	TorusExample(void)
 	 : make_torus(1.0, 0.5, 72, 48)
 	 , torus_instr(make_torus.Instructions())
-	 , torus_indices(make_torus.Indices())
+	 , torus_element_index_info(make_torus)
 	 , projection_matrix(prog, "ProjectionMatrix")
 	 , camera_matrix(prog, "CameraMatrix")
 	 , model_matrix(prog, "ModelMatrix")
@@ -147,6 +147,11 @@ public:
 			attr.Setup(n_per_vertex, DataType::Float).Enable();
 		}
 
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_torus.Indices());
+		}
+
 		// setup the color gradient
 		Uniform<GLint>(prog, "ColorCount").Set(8);
 		Uniform<Vec4f> color(prog, "Color");
@@ -198,7 +203,7 @@ public:
 			ModelMatrixf::RotationX(FullCircles(time * 0.25))
 		);
 
-		torus_instr.Draw(torus_indices);
+		torus_instr.Draw(torus_element_index_info);
 	}
 
 	bool Continue(double time)
