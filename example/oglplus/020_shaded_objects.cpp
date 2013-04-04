@@ -29,8 +29,8 @@ private:
 	ShapeMaker make_shape;
 	// helper object encapsulating the drawing instructions
 	shapes::DrawingInstructions shape_instr;
-	// indices pointing to the shape's primitive elements
-	typename ShapeMaker::IndexArray shape_indices;
+	// element index info for drawing the shape
+	shapes::ElementIndexInfo shape_element_index_info;
 
 	// Fragment shader is owned by each individual shape
 	Shader fs;
@@ -41,12 +41,12 @@ private:
 	// A vertex array object for the rendered shape
 	VertexArray shape;
 
-	// VBOs for the shape's vertices, normals and tex-coordinates
-	Buffer verts, normals, texcoords;
+	// VBOs for the shape's vertices, normals, tex-coordinates and indices
+	Buffer verts, normals, texcoords, indices;
 public:
 	Shape(const Shader& vs, Shader&& frag)
 	 : shape_instr(make_shape.Instructions())
-	 , shape_indices(make_shape.Indices())
+	 , shape_element_index_info(make_shape)
 	 , fs(std::forward<Shader>(frag))
 	{
 		// attach the shaders to the program
@@ -86,6 +86,9 @@ public:
 			attr.Setup(n_per_vertex, DataType::Float);
 			attr.Enable();
 		}
+
+		indices.Bind(Buffer::Target::ElementArray);
+		Buffer::Data(Buffer::Target::ElementArray, make_shape.Indices());
 	}
 
 	void SetProjection(const Mat4f& projection)
@@ -110,7 +113,7 @@ public:
 		shape.Bind();
 		// use the instructions to draw the shape
 		// (this basically calls glDrawArrays* or glDrawElements*)
-		shape_instr.Draw(shape_indices);
+		shape_instr.Draw(shape_element_index_info);
 	}
 };
 
