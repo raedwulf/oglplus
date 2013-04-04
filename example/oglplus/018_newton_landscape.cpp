@@ -186,6 +186,7 @@ public:
 			attr.Enable();
 		}
 
+		// bind the VBO for the plane indices
 		indices.Bind(Buffer::Target::ElementArray);
 		{
 			Buffer::Data(Buffer::Target::ElementArray, make_plane.Indices());
