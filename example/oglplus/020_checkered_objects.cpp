@@ -141,20 +141,21 @@ private:
 	ShapeBuilder make_shape;
 	// helper object encapsulating shape drawing instructions
 	shapes::DrawingInstructions shape_instr;
-	// indices pointing to shape primitive elements
-	typename ShapeBuilder::IndexArray shape_indices;
+	// element index info for drawing the shape
+	shapes::ElementIndexInfo shape_element_index_info;
 
 	// A vertex array object for the rendered shape
 	VertexArray vao;
 
-	// VBOs for the shape's vertex positions, normals and tex-coords
-	Buffer positions, normals, tex_coords;
+	// VBOs for the shape's vertex positions, normals, tex-coords and
+	// indices
+	Buffer positions, normals, tex_coords, indices;
 
 public:
 	CheckerShape(const Program& prog, const ShapeBuilder& builder)
 	 : make_shape(builder)
 	 , shape_instr(make_shape.Instructions())
-	 , shape_indices(make_shape.Indices())
+	 , shape_element_index_info(make_shape)
 	{
 		// bind the VAO for the shape
 		vao.Bind();
@@ -197,13 +198,19 @@ public:
 			attr.Setup(n_per_vertex, DataType::Float);
 			attr.Enable();
 		}
+
+		// bind the VBO for the shape indices
+		indices.Bind(Buffer::Target::ElementArray);
+		{
+			Buffer::Data(Buffer::Target::ElementArray, make_shape.Indices());
+		}
 	}
 
 	void Draw(void)
 	{
 		vao.Bind();
 		gl.FrontFace(make_shape.FaceWinding());
-		shape_instr.Draw(shape_indices);
+		shape_instr.Draw(shape_element_index_info);
 	}
 };
 
